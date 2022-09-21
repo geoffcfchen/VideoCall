@@ -6,45 +6,17 @@
  * @flow strict-local
  */
 import React from 'react';
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  FlatList,
-  View,
-} from 'react-native';
+import {SafeAreaView, StatusBar} from 'react-native';
 
-const contacts = ['Vadim', 'Elon Musk', 'Mark'];
+import ContactScreen from './src/screens/ContactsScreen';
 
 const App = () => {
   return (
-    <SafeAreaView style={styles.page}>
+    <SafeAreaView>
       <StatusBar barStyle={'dark-content'} />
-      <View style={styles.page}>
-        <FlatList
-          data={contacts}
-          renderItem={({item}) => (
-            <Text style={styles.contactName}>{item}</Text>
-          )}
-          ItemSeparatorComponent={() => (
-            <View style={styles.separator}></View>
-          )}></FlatList>
-      </View>
+      <ContactScreen></ContactScreen>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 15,
-  },
-  contactName: {fontSize: 16, marginVertical: 5},
-  separator: {
-    width: '100%',
-    height: 1,
-    backgroundColor: '#f0f0f0',
-  },
-});
 
 export default App;
