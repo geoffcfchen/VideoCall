@@ -18,7 +18,7 @@ const permissions = [
 ];
 
 const CallingScreen = () => {
-  const [permisionGranted, setPermisionGranted] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
 
