@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MateralIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const CallActionBox = () => {
+const CallActionBox = ({onHangupPress}) => {
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const onReverseCamera = () => {
@@ -18,7 +18,6 @@ const CallActionBox = () => {
     setIsMicOn(currentValue => !currentValue);
   };
 
-  const onHangUp = () => {};
   return (
     <View style={styles.buttonsContainer}>
       <Pressable onPress={onReverseCamera} style={styles.iconButton}>
@@ -40,7 +39,7 @@ const CallActionBox = () => {
           color={'white'}></MateralIcons>
       </Pressable>
       <Pressable
-        onPress={onHangUp}
+        onPress={onHangupPress}
         style={[styles.iconButton, {backgroundColor: 'red'}]}>
         <MateralIcons
           name="phone-hangup"

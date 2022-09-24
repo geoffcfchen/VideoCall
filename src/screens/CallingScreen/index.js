@@ -7,7 +7,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import CallActionBox from '../../components/CallActionBox';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -27,6 +27,8 @@ const CallingScreen = () => {
   const user = route?.params?.user;
 
   const voximplant = Voximplant.getInstance();
+
+  const call = useRef();
 
   const goBack = () => {
     navigation.pop();
@@ -64,24 +66,23 @@ const CallingScreen = () => {
       },
     };
 
-    let call;
     const makeCall = async () => {
-      call = await voximplant.call(user.user_name, callSettings);
+      call.current = await voximplant.call(user.user_name, callSettings);
       subscribeToCallEvents();
     };
 
     const subscribeToCallEvents = () => {
-      call.on(Voximplant.CallEvents.Failed, callEvent => {
+      call.current.on(Voximplant.CallEvents.Failed, callEvent => {
         showError(callEvent.reason);
       });
 
-      call.on(Voximplant.CallEvents.ProgressToneStart, callEvent => {
+      call.current.on(Voximplant.CallEvents.ProgressToneStart, callEvent => {
         setCallStatus('Calling');
       });
-      call.on(Voximplant.CallEvents.Connected, callEvent => {
+      call.current.on(Voximplant.CallEvents.Connected, callEvent => {
         setCallStatus('Connected');
       });
-      call.on(Voximplant.CallEvents.Disconnected, callEvent => {
+      call.current.on(Voximplant.CallEvents.Disconnected, callEvent => {
         navigation.navigate('Contacts');
       });
     };
@@ -98,12 +99,17 @@ const CallingScreen = () => {
     makeCall();
 
     return () => {
-      call.off(Voximplant.CallEvents.Failed);
-      call.off(Voximplant.CallEvents.ProgressToneStart);
-      call.off(Voximplant.CallEvents.Connected);
-      call.off(Voximplant.CallEvents.Disconnected);
+      call.current.off(Voximplant.CallEvents.Failed);
+      call.current.off(Voximplant.CallEvents.ProgressToneStart);
+      call.current.off(Voximplant.CallEvents.Connected);
+      call.current.off(Voximplant.CallEvents.Disconnected);
     };
   }, [permissionGranted]);
+
+  const onHangupPress = () => {
+    call.current.hangup();
+  };
+
   return (
     <View style={styles.page}>
       <Pressable onPress={goBack} style={styles.backButton}>
@@ -113,7 +119,7 @@ const CallingScreen = () => {
         <Text style={styles.name}>{user?.user_display_name}</Text>
         <Text style={styles.phoneNumber}>{callStatus}</Text>
       </View>
-      <CallActionBox></CallActionBox>
+      <CallActionBox onHangupPress={onHangupPress}></CallActionBox>
     </View>
   );
 };
