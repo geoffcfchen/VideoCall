@@ -21,14 +21,14 @@ const permissions = [
 const CallingScreen = () => {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [callStatus, setCallStatus] = useState('Initializing...');
+
   const navigation = useNavigation();
   const route = useRoute();
-
-  const user = route?.params?.user;
+  const {caller, user, call: incomingCall, isIncomingCall} = route?.params;
 
   const voximplant = Voximplant.getInstance();
 
-  const call = useRef();
+  const call = useRef(incomingCall);
 
   const goBack = () => {
     navigation.pop();
@@ -71,6 +71,11 @@ const CallingScreen = () => {
       subscribeToCallEvents();
     };
 
+    const answerCall = async () => {
+      subscribeToCallEvents();
+      call.current.answer(callSettings);
+    };
+
     const subscribeToCallEvents = () => {
       call.current.on(Voximplant.CallEvents.Failed, callEvent => {
         showError(callEvent.reason);
@@ -96,7 +101,11 @@ const CallingScreen = () => {
       ]);
     };
 
-    makeCall();
+    if (isIncomingCall) {
+      answerCall();
+    } else {
+      makeCall();
+    }
 
     return () => {
       call.current.off(Voximplant.CallEvents.Failed);
@@ -116,7 +125,7 @@ const CallingScreen = () => {
         <Ionicons name="chevron-back" color="white" size={25}></Ionicons>
       </Pressable>
       <View style={styles.cameraPreview}>
-        <Text style={styles.name}>{user?.user_display_name}</Text>
+        <Text style={styles.name}>{user?.user_display_name || caller}</Text>
         <Text style={styles.phoneNumber}>{callStatus}</Text>
       </View>
       <CallActionBox onHangupPress={onHangupPress}></CallActionBox>

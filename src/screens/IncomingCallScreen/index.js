@@ -5,25 +5,50 @@ import {
   StyleSheet,
   ImageBackground,
   Pressable,
+  Alert,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import bg from '../../../assets/images/ios_bg.jpeg';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
+import {useRoute, useNavigation} from '@react-navigation/native';
+import {Voximplant} from 'react-native-voximplant';
 
 const IncomingCallScreen = () => {
+  const [caller, setCaller] = useState('');
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  const {call} = route.params;
+
+  useEffect(() => {
+    setCaller(call.getEndpoints()[0].displayName);
+
+    call.on(Voximplant.CallEvents.Disconnected, callEvent => {
+      navigation.navigate('Contacts');
+    });
+
+    return () => {
+      call.off(Voximplant.CallEvents.Disconnected);
+    };
+  }, [call]);
+
   const onDecline = () => {
-    console.warn('on Decline');
+    call.decline();
   };
 
   const onAccept = () => {
-    console.warn('on Accept');
+    navigation.navigate('Calling', {
+      caller,
+      call,
+      isIncomingCall: true,
+    });
   };
 
   return (
     <ImageBackground source={bg} style={styles.bg} resizeMode="cover">
-      <Text style={styles.name}>Fu-Chi</Text>
+      <Text style={styles.name}>{caller}</Text>
       <Text style={styles.phoneNumber}>Ringing +31 343 3434 3434</Text>
 
       <View style={[styles.row, {marginTop: 'auto'}]}>
